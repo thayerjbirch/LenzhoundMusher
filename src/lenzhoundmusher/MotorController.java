@@ -5,6 +5,8 @@
  */
 package lenzhoundmusher;
 
+import lenzhoundmusher.panels.SingleMotorPanel;
+
 /**
  *
  * @author Thayer

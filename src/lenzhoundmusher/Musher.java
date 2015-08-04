@@ -5,6 +5,7 @@
  */
 package lenzhoundmusher;
 
+import lenzhoundmusher.panels.SingleMotorPanel;
 import java.awt.FlowLayout;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -21,17 +22,11 @@ public class Musher extends javax.swing.JFrame {
      */
     public Musher() {
         initComponents();
-        setMnemonics();
         masterMotorPanel.setLayout(new BoxLayout(masterMotorPanel, BoxLayout.Y_AXIS));
         controllerArray.add(new MotorController(this));
         
         addPanel(controllerArray.get(0).motorPanel);
         this.pack();
-    }
-    
-    private void setMnemonics(){
-        menuFileButton.setMnemonic(KeyEvent.VK_F);
-        menuFile_ExitButton.setMnemonic(KeyEvent.VK_X);
     }
     
     protected final void addPanel(SingleMotorPanel newPanel){
@@ -47,10 +42,11 @@ public class Musher extends javax.swing.JFrame {
     private void initComponents() {
 
         goButton = new javax.swing.JButton();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 32767));
         masterMotorPanel = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         menuFileButton = new javax.swing.JMenu();
+        menuFile_AddButton = new javax.swing.JMenuItem();
+        menuRemoveMotorMenu = new javax.swing.JMenu();
         menuFile_ExitButton = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -76,8 +72,22 @@ public class Musher extends javax.swing.JFrame {
             .addGap(0, 33, Short.MAX_VALUE)
         );
 
+        menuFileButton.setMnemonic('f');
         menuFileButton.setText("File");
 
+        menuFile_AddButton.setMnemonic('n');
+        menuFile_AddButton.setText("Add New Motor");
+        menuFile_AddButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuFile_AddButtonActionPerformed(evt);
+            }
+        });
+        menuFileButton.add(menuFile_AddButton);
+
+        menuRemoveMotorMenu.setText("Remove Motor");
+        menuFileButton.add(menuRemoveMotorMenu);
+
+        menuFile_ExitButton.setMnemonic('x');
         menuFile_ExitButton.setText("Exit");
         menuFile_ExitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -94,10 +104,6 @@ public class Musher extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(filler1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(117, 117, 117))
             .addComponent(masterMotorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGap(146, 146, 146)
@@ -108,9 +114,7 @@ public class Musher extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(masterMotorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(filler1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(goButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -123,12 +127,14 @@ public class Musher extends javax.swing.JFrame {
     }//GEN-LAST:event_menuFile_ExitButtonActionPerformed
 
     private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
-        controllerArray.add(new MotorController(this));
         
+    }//GEN-LAST:event_goButtonActionPerformed
+
+    private void menuFile_AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFile_AddButtonActionPerformed
+        controllerArray.add(new MotorController(this));        
         addPanel(controllerArray.get(controllerArray.size() - 1).motorPanel);
         this.pack();
-        System.out.println(controllerArray.size());
-    }//GEN-LAST:event_goButtonActionPerformed
+    }//GEN-LAST:event_menuFile_AddButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -167,11 +173,12 @@ public class Musher extends javax.swing.JFrame {
 
     protected ArrayList<MotorController> controllerArray = new ArrayList<>();
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.Box.Filler filler1;
     private javax.swing.JButton goButton;
     protected static javax.swing.JPanel masterMotorPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuFileButton;
+    private javax.swing.JMenuItem menuFile_AddButton;
     private javax.swing.JMenuItem menuFile_ExitButton;
+    private javax.swing.JMenu menuRemoveMotorMenu;
     // End of variables declaration//GEN-END:variables
 }
