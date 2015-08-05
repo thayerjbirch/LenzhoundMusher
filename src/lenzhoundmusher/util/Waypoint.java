@@ -66,6 +66,11 @@ public class Waypoint {
         else return 0;
     }
     
+    @Override
+    public String toString(){
+        return String.format("Position % 6d at time % 5.2f",target,time);
+    }
+    
     private int acceleration;    
     public final int target;
     public final double time;

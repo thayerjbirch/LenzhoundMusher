@@ -6,9 +6,6 @@
 package lenzhoundmusher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jssc.*;
 /**
  *
@@ -31,6 +28,20 @@ public class SerialWorker {
             System.out.println(ex.toString());
         }
         MotorController.removeInUse(port.getPortName());
+    }
+    
+    public void sendMoveCommand(int target){
+        try {
+            port.openPort();
+            port.writeBytes(("9," + target + ";").getBytes());
+        } catch (SerialPortException ex) {
+            System.out.println(ex);
+        }
+        try {
+            port.closePort();
+        } catch (SerialPortException ex) {
+            System.out.println(ex);
+        }
     }
     
     public static ArrayList<SerialPort> findMotors(){

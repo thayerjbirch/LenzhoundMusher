@@ -20,6 +20,7 @@ public class MotorController {
         callback = cb;
         serialWorker = outWorker;
         associatedMenuButton = removeButton;
+        motorPanel = new SingleMotorPanel(this);
     }
     public void shutdown(){
         serialWorker.shutdown();
@@ -36,27 +37,66 @@ public class MotorController {
         motorsInUse.remove(motor);
     }
     
+    /**
+     *
+     * @param newPoint
+     * @return returns the index where the new waypoint is placed
+     */
     public void addWaypoint(Waypoint newPoint){
+        /*if(waypointArray.isEmpty()){
+            waypointArray.add(newPoint);            
+            motorPanel.newListData(prepareArray(waypointArray.toArray()));
+            return;
+        }*/
         int i = 0;
-        while(newPoint.compare(waypointList.get(i)) > 0){
+        while(waypointArray.size() > i && newPoint.compare(waypointArray.get(i)) > 0){
             i++;
         }
-        if(newPoint.compare(waypointList.get(i)) != 0)
-            waypointList.add(i, newPoint);
-        else
-            JOptionPane.showMessageDialog(null,
-                    "Error: cannot assign two target positions for the same point in time.",
-                    "Alert", JOptionPane.ERROR_MESSAGE);
+        if(waypointArray.size() > i){
+            if(newPoint.compare(waypointArray.get(i)) != 0){
+                waypointArray.add(i, newPoint);
+                motorPanel.newListData(prepareArray(waypointArray.toArray()));
+            }
+            else
+                JOptionPane.showMessageDialog(null,
+                        "Error: cannot assign two target positions for the same point in time.",
+                        "Alert", JOptionPane.ERROR_MESSAGE);
+        }else{
+            waypointArray.add(newPoint);            
+            motorPanel.newListData(prepareArray(waypointArray.toArray()));
+        }
     }
     
     public void removeWaypoint(int index){
-        waypointList.remove(index);
+        waypointArray.remove(index);
+        motorPanel.newListData(prepareArray(waypointArray.toArray()));
     }
     
+    private String[] prepareArray(Object[] arrIn){
+        String[] arrOut = new String[arrIn.length];
+        for(int i = 0; i < arrIn.length; i++){
+            arrOut[i] = arrIn[i].toString();
+        }
+        return arrOut;
+    }
+    
+    public void moveBy(int steps){
+        motorPosition+=steps;
+        serialWorker.sendMoveCommand(motorPosition);
+        System.out.println(motorPosition);
+    }
+    
+
+    public int getMotorPosition() {
+        return motorPosition;
+    }
+    
+    private int motorPosition = 0;
+    private int originPosition = 0;
     SerialWorker serialWorker = null;
-    SingleMotorPanel motorPanel = new SingleMotorPanel(this);
+    SingleMotorPanel motorPanel = null;
     JMenuItem associatedMenuButton;
-    Musher callback = null;
+    public Musher callback = null;
     static ArrayList<String> motorsInUse = new ArrayList<>();
-    private final ArrayList<Waypoint> waypointList = new ArrayList<>();
+    private final ArrayList<Waypoint> waypointArray = new ArrayList<>();
 }

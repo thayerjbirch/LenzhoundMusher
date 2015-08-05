@@ -5,10 +5,13 @@
  */
 package lenzhoundmusher;
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import lenzhoundmusher.panels.SingleMotorPanel;
 import java.util.ArrayList;
 import javax.swing.BoxLayout;
@@ -30,9 +33,16 @@ public class Musher extends javax.swing.JFrame {
     public Musher() {
         initComponents();
         setUpListeners();
+        setLocationRelativeTo(null);
         masterMotorPanel.setLayout(new BoxLayout(masterMotorPanel, BoxLayout.Y_AXIS));
         addPanel(new SearchPanel(this));
         this.pack();
+        
+        //Sets the icon for the upper left corner of the application
+        java.net.URL url = ClassLoader.getSystemResource("lenzhoundmusher/res/motion-dogs.png");
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Image img = kit.createImage(url);
+        this.setIconImage(img);
     }
     
     public final void addMotorController(SerialPort outport){
@@ -60,8 +70,7 @@ public class Musher extends javax.swing.JFrame {
         controllerArray.remove(controller);
     }
     
-    public final void addPanel(JPanel newPanel){
-        
+    public final void addPanel(JPanel newPanel){        
         Musher.masterMotorPanel.add(newPanel);        
         panelList.add(newPanel);        
         this.pack();
@@ -70,7 +79,7 @@ public class Musher extends javax.swing.JFrame {
     public final void removePanel(int index){
         Musher.masterMotorPanel.remove(panelList.get(index));
         panelList.remove(index);
-        masterMotorPanel.setPreferredSize(masterMotorPanel.getPreferredSize());
+        masterMotorPanel.setPreferredSize(masterMotorPanel.getPreferredSize());//forced autoresizing, emulates jform behaivior
         this.pack();
     }
     
@@ -93,6 +102,23 @@ public class Musher extends javax.swing.JFrame {
             }
 
         });
+        
+        addWindowFocusListener(new WindowFocusListener()
+        {
+            @Override
+            public void windowGainedFocus(WindowEvent we)
+            {
+                for(MotorController cont: controllerArray){
+                    if(cont.motorPanel.addForm != null && cont.motorPanel.addForm.isVisible())
+                        cont.motorPanel.addForm.requestFocus();
+                }
+            }
+
+            @Override
+            public void windowLostFocus(WindowEvent we)
+            {               
+            }
+        });
     }
     
     /**
@@ -113,6 +139,7 @@ public class Musher extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(410, 210));
+        setResizable(false);
 
         goButton.setText("Begin Move");
         goButton.setMinimumSize(new java.awt.Dimension(86, 23));
@@ -124,7 +151,6 @@ public class Musher extends javax.swing.JFrame {
         });
 
         masterMotorPanel.setMaximumSize(null);
-        masterMotorPanel.setMinimumSize(null);
 
         javax.swing.GroupLayout masterMotorPanelLayout = new javax.swing.GroupLayout(masterMotorPanel);
         masterMotorPanel.setLayout(masterMotorPanelLayout);
@@ -243,7 +269,7 @@ public class Musher extends javax.swing.JFrame {
         });
     }
 
-    protected ArrayList<MotorController> controllerArray = new ArrayList<>();
+    public ArrayList<MotorController> controllerArray = new ArrayList<>();
     private ArrayList<JPanel> panelList = new ArrayList<>();
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

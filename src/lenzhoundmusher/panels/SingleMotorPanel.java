@@ -5,7 +5,12 @@
  */
 package lenzhoundmusher.panels;
 
+import javax.swing.DefaultListModel;
+import javax.swing.UIManager;
 import lenzhoundmusher.MotorController;
+import lenzhoundmusher.util.AddWaypointDialog;
+import lenzhoundmusher.util.ManualDrive;
+import lenzhoundmusher.util.Waypoint;
 
 /**
  *
@@ -20,10 +25,26 @@ public class SingleMotorPanel extends javax.swing.JPanel {
         initComponents();
         System.out.println(waypointList.getComponentCount());
         parent = par;
+        
+        nameTextField.setText("Motor " + (parent.callback.controllerArray.size() + 1));
+        if(UIManager.getLookAndFeel().getName().equals("Nimbus"))
+            nameTextField.setBackground(new java.awt.Color(214,217,223));
+        
+        waypointList.setModel(model);
     }
     
     public void addWaypoint(double time, int position){
-        
+        Waypoint waypoint = new Waypoint(time,position);
+        parent.addWaypoint(waypoint);
+        model.addElement(waypoint);
+    }
+    
+    public String getMotorName(){
+        return nameTextField.getText();
+    }
+    
+    public void newListData(String[] listData){
+        waypointList.setListData(listData);
     }
 
     /**
@@ -36,14 +57,14 @@ public class SingleMotorPanel extends javax.swing.JPanel {
 
         deleteButton = new javax.swing.JButton();
         Add = new javax.swing.JButton();
-        editButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         waypointList = new javax.swing.JList();
         driveButton = new javax.swing.JButton();
+        nameTextField = new javax.swing.JTextField();
 
         setMinimumSize(new java.awt.Dimension(401, 132));
 
-        deleteButton.setText("Delete");
+        deleteButton.setText("Delete Waypoint");
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteButtonActionPerformed(evt);
@@ -51,9 +72,13 @@ public class SingleMotorPanel extends javax.swing.JPanel {
         });
 
         Add.setText("Add Waypoint");
+        Add.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddActionPerformed(evt);
+            }
+        });
 
-        editButton.setText("Edit Waypoint");
-
+        waypointList.setFont(new java.awt.Font("Monospaced", 0, 11)); // NOI18N
         waypointList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(waypointList);
 
@@ -64,6 +89,10 @@ public class SingleMotorPanel extends javax.swing.JPanel {
             }
         });
 
+        nameTextField.setBackground(new java.awt.Color(240, 240, 240));
+        nameTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        nameTextField.setBorder(null);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -71,38 +100,39 @@ public class SingleMotorPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Add)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(editButton))
-                    .addComponent(driveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(driveButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(Add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(nameTextField))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(nameTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(Add)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(driveButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(editButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
         try{
-            int index = waypointList.getSelectedIndex();
+            parent.removeWaypoint(waypointList.getSelectedIndex());
+            model.removeElementAt(waypointList.getSelectedIndex());
+            /*int index = waypointList.getSelectedIndex();
             if(index < waypointList.getComponentCount());
-                waypointList.remove(index);
+                waypointList.remove(index);*/
         }
         catch(Exception e){
             System.out.println(e);
@@ -110,17 +140,24 @@ public class SingleMotorPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void driveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_driveButtonActionPerformed
-        // TODO add your handling code here:
+        new ManualDrive(this.parent.callback,true,this).show();
     }//GEN-LAST:event_driveButtonActionPerformed
+
+    private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
+        addForm = new AddWaypointDialog(this.parent.callback,true, this);
+        addForm.show();
+    }//GEN-LAST:event_AddActionPerformed
     
-    private MotorController parent = null;
+    public final MotorController parent;
+    public AddWaypointDialog addForm = null;
+    private DefaultListModel model = new DefaultListModel();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Add;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton driveButton;
-    private javax.swing.JButton editButton;
     private javax.swing.JScrollPane jScrollPane2;
+    public javax.swing.JTextField nameTextField;
     private javax.swing.JList waypointList;
     // End of variables declaration//GEN-END:variables
 }
