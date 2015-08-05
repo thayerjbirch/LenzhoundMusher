@@ -25,10 +25,7 @@ public class MotorController {
         serialWorker.shutdown();
     }
     static public boolean checkInUse(String motor){
-        if(motorsInUse.contains(motor))
-            return true;
-        else
-            return false;
+        return motorsInUse.contains(motor);
     }
     
     static public void addInUse(String motor){
@@ -61,5 +58,5 @@ public class MotorController {
     JMenuItem associatedMenuButton;
     Musher callback = null;
     static ArrayList<String> motorsInUse = new ArrayList<>();
-    private ArrayList<Waypoint> waypointList = new ArrayList<>();
+    private final ArrayList<Waypoint> waypointList = new ArrayList<>();
 }

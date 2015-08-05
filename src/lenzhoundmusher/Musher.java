@@ -58,11 +58,10 @@ public class Musher extends javax.swing.JFrame {
         controller.shutdown();
         removePanel(controller.motorPanel);
         controllerArray.remove(controller);
-        if(controllerArray.isEmpty())
-            addPanel(new EmptyPanel());
     }
     
     public final void addPanel(JPanel newPanel){
+        
         Musher.masterMotorPanel.add(newPanel);        
         panelList.add(newPanel);        
         this.pack();
@@ -77,7 +76,10 @@ public class Musher extends javax.swing.JFrame {
     
     public final void removePanel(JPanel panel){
         Musher.masterMotorPanel.remove(panel);
-        panelList.remove(panel);
+        panelList.remove(panel);        
+        if(controllerArray.isEmpty())
+            if(!panelList.isEmpty() && !(panelList.get(panelList.size() - 1) instanceof SearchPanel))
+                addPanel(new EmptyPanel());
         this.pack();
     }
     
