@@ -5,6 +5,8 @@
  */
 package lenzhoundmusher.panels;
 
+import lenzhoundmusher.MotorController;
+
 /**
  *
  * @author Thayer
@@ -14,9 +16,14 @@ public class SingleMotorPanel extends javax.swing.JPanel {
     /**
      * Creates new form SingleMotorPanel
      */
-    public SingleMotorPanel() {
+    public SingleMotorPanel(MotorController par) {
         initComponents();
         System.out.println(waypointList.getComponentCount());
+        parent = par;
+    }
+    
+    public void addWaypoint(double time, int position){
+        
     }
 
     /**
@@ -32,6 +39,9 @@ public class SingleMotorPanel extends javax.swing.JPanel {
         editButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         waypointList = new javax.swing.JList();
+        driveButton = new javax.swing.JButton();
+
+        setMinimumSize(new java.awt.Dimension(401, 132));
 
         deleteButton.setText("Delete");
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
@@ -47,6 +57,13 @@ public class SingleMotorPanel extends javax.swing.JPanel {
         waypointList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(waypointList);
 
+        driveButton.setText("Manual Drive");
+        driveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                driveButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -55,10 +72,12 @@ public class SingleMotorPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(editButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(Add))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Add)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(editButton))
+                    .addComponent(driveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -69,6 +88,8 @@ public class SingleMotorPanel extends javax.swing.JPanel {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(Add)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(driveButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(editButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -88,10 +109,16 @@ public class SingleMotorPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_deleteButtonActionPerformed
 
+    private void driveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_driveButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_driveButtonActionPerformed
+    
+    private MotorController parent = null;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Add;
     private javax.swing.JButton deleteButton;
+    private javax.swing.JButton driveButton;
     private javax.swing.JButton editButton;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JList waypointList;

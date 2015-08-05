@@ -5,11 +5,18 @@
  */
 package lenzhoundmusher;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import lenzhoundmusher.panels.SingleMotorPanel;
-import java.awt.FlowLayout;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import javax.swing.BoxLayout;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import jssc.SerialPort;
+import lenzhoundmusher.panels.EmptyPanel;
+import lenzhoundmusher.panels.SearchPanel;
 
 /**
  *
@@ -22,15 +29,68 @@ public class Musher extends javax.swing.JFrame {
      */
     public Musher() {
         initComponents();
+        setUpListeners();
         masterMotorPanel.setLayout(new BoxLayout(masterMotorPanel, BoxLayout.Y_AXIS));
-        controllerArray.add(new MotorController(this));
-        
-        addPanel(controllerArray.get(0).motorPanel);
+        addPanel(new SearchPanel(this));
         this.pack();
     }
     
-    protected final void addPanel(SingleMotorPanel newPanel){
+    public final void addMotorController(SerialPort outport){
+        int newIndex = controllerArray.size();// .size() not -1 because we're about to increace the array size        
+        JMenuItem newButton = new JMenuItem("Remove Motor " + (newIndex + 1));
+        newButton.addActionListener((ActionEvent e) -> {
+            JMenuItem button = (JMenuItem) e.getSource();
+            for(MotorController cont : controllerArray){
+                if(cont.associatedMenuButton.equals(button)){
+                    removeMotorController(cont);
+                    break;
+                } else
+                    System.out.println("fail to delete");
+            }
+        });
+        MotorController newController = new MotorController(this,new SerialWorker(outport), newButton);
+        controllerArray.add(newController);
+        menuRemoveMotorMenu.add(newButton);
+        addPanel(controllerArray.get(newIndex).motorPanel);
+    }
+    
+    public final void removeMotorController(MotorController controller){
+        controller.shutdown();
+        removePanel(controller.motorPanel);
+        controllerArray.remove(controller);
+        if(controllerArray.isEmpty())
+            addPanel(new EmptyPanel());
+    }
+    
+    public final void addPanel(JPanel newPanel){
         Musher.masterMotorPanel.add(newPanel);        
+        panelList.add(newPanel);        
+        this.pack();
+    }
+    
+    public final void removePanel(int index){
+        Musher.masterMotorPanel.remove(panelList.get(index));
+        panelList.remove(index);
+        masterMotorPanel.setPreferredSize(masterMotorPanel.getPreferredSize());
+        this.pack();
+    }
+    
+    public final void removePanel(JPanel panel){
+        Musher.masterMotorPanel.remove(panel);
+        panelList.remove(panel);
+        this.pack();
+    }
+    
+    private void setUpListeners(){
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                for(MotorController cont : controllerArray){
+                    cont.shutdown();//ensures all serial ports are closed
+                }
+            }
+
+        });
     }
     
     /**
@@ -61,6 +121,9 @@ public class Musher extends javax.swing.JFrame {
             }
         });
 
+        masterMotorPanel.setMaximumSize(null);
+        masterMotorPanel.setMinimumSize(null);
+
         javax.swing.GroupLayout masterMotorPanelLayout = new javax.swing.GroupLayout(masterMotorPanel);
         masterMotorPanel.setLayout(masterMotorPanelLayout);
         masterMotorPanelLayout.setHorizontalGroup(
@@ -69,7 +132,7 @@ public class Musher extends javax.swing.JFrame {
         );
         masterMotorPanelLayout.setVerticalGroup(
             masterMotorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 33, Short.MAX_VALUE)
+            .addGap(0, 34, Short.MAX_VALUE)
         );
 
         menuFileButton.setMnemonic('f');
@@ -113,8 +176,8 @@ public class Musher extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(masterMotorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addComponent(masterMotorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(goButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -123,6 +186,9 @@ public class Musher extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void menuFile_ExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFile_ExitButtonActionPerformed
+        for(MotorController cont : controllerArray){
+                    cont.shutdown();//ensures all serial ports are closed
+                }
         System.exit(0);
     }//GEN-LAST:event_menuFile_ExitButtonActionPerformed
 
@@ -131,9 +197,13 @@ public class Musher extends javax.swing.JFrame {
     }//GEN-LAST:event_goButtonActionPerformed
 
     private void menuFile_AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFile_AddButtonActionPerformed
-        controllerArray.add(new MotorController(this));        
-        addPanel(controllerArray.get(controllerArray.size() - 1).motorPanel);
-        this.pack();
+        if(panelList.get(0) instanceof EmptyPanel){
+            removePanel(0);
+            addPanel(new SearchPanel(this));
+            return;
+        }
+        if(!(panelList.get(panelList.size() - 1) instanceof SearchPanel))
+            addPanel(new SearchPanel(this));
     }//GEN-LAST:event_menuFile_AddButtonActionPerformed
 
     /**
@@ -172,6 +242,8 @@ public class Musher extends javax.swing.JFrame {
     }
 
     protected ArrayList<MotorController> controllerArray = new ArrayList<>();
+    private ArrayList<JPanel> panelList = new ArrayList<>();
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton goButton;
     protected static javax.swing.JPanel masterMotorPanel;

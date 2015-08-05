@@ -6,6 +6,9 @@
 package lenzhoundmusher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jssc.*;
 /**
  *
@@ -14,37 +17,54 @@ import jssc.*;
 public class SerialWorker {
     public SerialWorker(SerialPort inPort){
         port = inPort;
-        try{
-            port.openPort();
-            port.setParams(SerialPort.BAUDRATE_9600, 
-                           SerialPort.DATABITS_8,
-                           SerialPort.STOPBITS_1,
-                           SerialPort.PARITY_NONE);
-        }catch(Exception e){
-            System.out.println(e);
-        }
     }
     
     public boolean hasFailed(){
         return errorThrown;
     }
     
+    public void shutdown(){
+        try {
+            if(port.isOpened())
+                port.closePort();
+        } catch (SerialPortException ex) {
+            System.out.println(ex.toString());
+        }
+        MotorController.removeInUse(port.getPortName());
+    }
+    
     public static ArrayList<SerialPort> findMotors(){
         ArrayList<SerialPort> devicePorts = new ArrayList<>();
         String[] allPorts = SerialPortList.getPortNames();
         for(String s: allPorts){
+            if(MotorController.checkInUse(s)){//if a motor already has an assigned controller, skip itcontinue;
+                System.out.println(s + " is already in use.");
+                continue;
+            }
             SerialPort testPort = new SerialPort(s);
             try{
+                testPort.openPort();
+                testPort.setParams(9600, 8, 1, 0);
                 testPort.writeBytes("0;".getBytes());
-                byte[] buffer = testPort.readBytes(18, 250);
-                String returnedString = new String(buffer, "UTF-8");
+                try{
+                    Thread.sleep(350);
+                }catch(Exception e){
+                    System.out.println(e.toString());
+                }
+                String returnedString = new String(testPort.readBytes());//new String(buffer, "UTF-8");
                 testPort.closePort();
                 if(returnedString.contains("Dogbone")){
-                    System.out.println("Check success!\n");
+                    System.out.println("Check success on port " + s + "!\n");
                     devicePorts.add(testPort);
                 }
             }catch(Exception e){
-                System.out.println("Port " + s + " has failed.");
+                try {
+                    testPort.closePort();
+                    System.out.println(e);
+                    System.out.println("Port " + s + " has failed.");
+                } catch (SerialPortException ex) {
+                    System.out.println(ex);
+                }
             }
         }
         return devicePorts;
