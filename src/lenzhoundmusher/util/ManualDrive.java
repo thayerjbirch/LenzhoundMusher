@@ -143,18 +143,22 @@ public class ManualDrive extends javax.swing.JDialog {
     private void record(){
         String inString = JOptionPane.showInputDialog("When do you want to arrive at this point:");
         double time = -1;
-        while(time<=0){
+        while(time<0){
             try{
                 if(inString.equals(""))
                     return;
                 time = Double.parseDouble(inString);
-                if(time<=0)
+                if(time<0)
                     inString = JOptionPane.showInputDialog("Time value must be non-negative:");                
             }catch(Exception e){
+                if(e instanceof NullPointerException)//lets you cancel out
+                    return;
                 inString = JOptionPane.showInputDialog("Must enter a numeric value:");
                 continue;
             }
         }
+        if(time == 0)
+            originPosition = callback.parent.getMotorPosition();
         callback.parent.addWaypoint(new Waypoint(time,callback.parent.getMotorPosition()));
     }
     
@@ -275,7 +279,8 @@ public class ManualDrive extends javax.swing.JDialog {
     }
     
     private final SingleMotorPanel callback;
-    Integer stepsToMove = 0;
+    int originPosition = 0;
+    int stepsToMove = 0;
     final Timer t;
     BitSet keysDown = new BitSet(4);
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -14,6 +14,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import lenzhoundmusher.panels.SingleMotorPanel;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -221,9 +224,29 @@ public class Musher extends javax.swing.JFrame {
     }//GEN-LAST:event_menuFile_ExitButtonActionPerformed
 
     private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
-        
+        double time = 0;
+        int endTime = (int)getEndingTime();
+        do{
+            for(MotorController m : controllerArray)
+                m.advance(time);
+            time+=100;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }while(time < endTime);
     }//GEN-LAST:event_goButtonActionPerformed
-
+    
+    private double getEndingTime(){
+        double endTime = 0;
+        for(MotorController m : controllerArray){
+            if (m.getEndTime() > endTime)
+                endTime = m.getEndTime();
+        }
+        return endTime;
+    }
+    
     private void menuFile_AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFile_AddButtonActionPerformed
         if(panelList.get(0) instanceof EmptyPanel){
             removePanel(0);
@@ -270,7 +293,7 @@ public class Musher extends javax.swing.JFrame {
     }
 
     public ArrayList<MotorController> controllerArray = new ArrayList<>();
-    private ArrayList<JPanel> panelList = new ArrayList<>();
+    private final ArrayList<JPanel> panelList = new ArrayList<>();
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton goButton;

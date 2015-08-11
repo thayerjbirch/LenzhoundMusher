@@ -55,7 +55,7 @@ public class AddWaypointDialog extends javax.swing.JDialog {
 
         jLabel1.setText("Enter the target position:");
 
-        jLabel2.setText("Enter the you wish to arrive:");
+        jLabel2.setText("Enter the time you wish to arrive:");
 
         acceptButton.setText("Accept");
         acceptButton.addActionListener(new java.awt.event.ActionListener() {
@@ -77,7 +77,7 @@ public class AddWaypointDialog extends javax.swing.JDialog {
                             .addComponent(jLabel1))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(timeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                            .addComponent(timeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
                             .addComponent(targetTextField)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(acceptButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)

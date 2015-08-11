@@ -16,6 +16,7 @@ public class Waypoint {
         if(tarTime < 0)
             tarTime*=-1;
         time = tarTime;
+        miliTime = (int) time * 1000;
         
         if(vel < 0)
             vel*=-1;
@@ -74,6 +75,7 @@ public class Waypoint {
     private int acceleration;    
     public final int target;
     public final double time;
+    public final int miliTime;
     private int velocity;
 
     /**
